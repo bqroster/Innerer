@@ -1,0 +1,45 @@
+{
+  "name": "innerer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Check elements within the viewport",
+  "author": "Jose Burgos <jose@bqroster.com>",
+  "license": "MIT",
+  "main": "build/index.js",
+  "scripts": {
+    "watch": "watch 'npm run dist' src",
+    "build": "babel src --out-file build/index-babel.js",
+    "uglify": "uglifyjs --compress --mangle --output ./build/index.js -- ./build/index-babel.js",
+    "dist": "npm run build && npm run uglify",
+    "test": "jest",
+    "test:watch": "npm test -- --watch",
+    "prepublish": "npm run dist",
+    "release": "np"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fburgosq/innerer.git"
+  },
+  "keywords": [
+    "viewport",
+    "view",
+    "inside viewport"
+  ],
+  "bugs": {
+    "url": "https://github.com/fburgosq/innerer/issues"
+  },
+  "homepage": "https://github.com/fburgosq/innerer#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.6",
+    "@babel/preset-env": "^7.9.6",
+    "jest": "^26.0.1",
+    "np": "^6.2.3",
+    "uglify-js": "^3.9.3",
+    "watch": "^1.0.2"
+  },
+  "engines": {
+    "node": ">= 8.10.0",
+    "npm": ">= 5.6.0"
+  }
+}
