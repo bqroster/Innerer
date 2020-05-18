@@ -1,9 +1,9 @@
 export default (function() {
 
     /**
-     * @type {number}
+     * @type {string}
      */
-    let bodyScrollX;
+    let isMounted = 'none'; // [none|progress|complete]
 
     /**
      * @type {number}
@@ -31,6 +31,21 @@ export default (function() {
     const DIRECTION_DW = 'down';
 
     /**
+     * @type {string}
+     */
+    const DIRECTION_ST = 'stop';
+
+    /**
+     * @type {string}
+     */
+    const QUERY_ATTR = 'data-innerer';
+
+    /**
+     * @type {string}
+     */
+    const ERROR_TAG = '[Innerer]';
+
+    /**
      * check DOM is loaded and execute fn()
      * @param {function} fn
      */
@@ -38,19 +53,8 @@ export default (function() {
         if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading"){
             fn();
         } else {
-            document.addEventListener('DOMContentLoaded', fn);
+            document.addEventListener('readystatechange', fn);
         }
-    };
-
-    /**
-     * @return {number}
-     */
-    const getBodyScrollX = function() {
-        return (
-            window.pageXOffset ||
-            document.documentElement.scrollLeft ||
-            document.body.scrollLeft
-        );
     };
 
     /**
@@ -85,48 +89,102 @@ export default (function() {
      */
     const getPercentage = function(val, total) {
         const offset = (val > 0) ? (val / (total || 1)) : 0;
-        return (offset > 1 ? 1 : offset);
+        return ((offset > 1 || offset < 0) ? 1 : offset);
     };
 
     /**
+     * @param {DOMRect} domRect
      * @param {number} browserHeight
-     * @param {DOMRect} domRect
-     * @return {number}
-     */
-    const getPercentageViewport = function(browserHeight, domRect) {
-        return (
-            getPercentage(
-                browserHeight - domRect.top,
-                domRect.height
-            ) *
-            getPercentage(
-                domRect.bottom,
-                domRect.height
-            )
-        ).toFixed(4);
-    };
-
-    /**
-     * @param {DOMRect} domRect
-     * @param {number} yRef
      * @param {string} direction
      * @return {number}
      */
-    const getPercentageCentered = function(browserHeight, domRect) {
-        const inTop = browserHeight - domRect.top;
-        const per = (inTop > 0) ? (inTop / (domRect.height || 1)).toFixed(4) : 0;
-        return (per > 1 ? 1 : per);
+    const processViewport = function(domRect, browserHeight, direction) {
+        const belowOutTransition = getPercentage(
+            browserHeight - domRect.top,
+            domRect.height
+        );
+
+        const aboveOutTransition = getPercentage(
+            domRect.bottom,
+            domRect.height
+        );
+
+        const inTransition =  ( belowOutTransition * aboveOutTransition );
+
+        const inPosition = Math.ceil(inTransition) * (1 - getPercentage(browserHeight - domRect.top, browserHeight));
+
+        const outerBelowView = getPercentage(
+            (browserHeight + domRect.height) - domRect.top,
+            domRect.height
+        );
+
+        const outerAboveView = getPercentage(
+            domRect.bottom + domRect.height,
+            domRect.height
+        );
+
+        const inOuter = outerBelowView * outerAboveView;
+
+        let inStatus;
+        if (outerBelowView === 0) {
+            inStatus = 'bottom-outer';
+        }
+        else if (outerAboveView === 0) {
+            inStatus = 'top-outer';
+        }
+        else if (outerBelowView > 0 && outerBelowView < 1) {
+            inStatus = 'bottom-outer-process';
+        }
+        else if (outerAboveView > 0 && outerAboveView < 1) {
+            inStatus = 'top-outer-process';
+        }
+        else if (belowOutTransition > 0 && belowOutTransition < 1) {
+            inStatus = direction === DIRECTION_DW ? 'bottom-leaving' : 'bottom-entering';
+        }
+        else if (aboveOutTransition > 0 && aboveOutTransition < 1) {
+            inStatus = direction === DIRECTION_DW ? 'top-entering' : 'top-leaving';
+        }
+        else if (belowOutTransition === 1 && aboveOutTransition === 1) {
+            inStatus = 'enter';
+        }
+
+        return {
+            status: inStatus,
+            percentageInTransition: Number(inTransition.toFixed(4)),
+            percentageInPosition: Number(inPosition.toFixed(4)),
+            percentageOutside: Number(inOuter.toFixed(4))
+        };
     };
 
     /**
-     * @param {number} _bodyScrollX
+     * @param {DOMRect} domRect
+     * @param {number} browserHeight
+     * @return {number}
+     */
+    const processCentered = function(domRect, browserHeight) {
+        const yCenter = (browserHeight / 2);
+        const belowCenter = getPercentage(
+            browserHeight - (domRect.top + (domRect.height/2)),
+            yCenter
+        );
+        const aboveCenter = getPercentage(
+            domRect.top + (domRect.height/2),
+            yCenter
+        );
+        return {
+            status: belowCenter < 1 ? 'below_center' : 'above_center',
+            percentage: Number((belowCenter * aboveCenter).toFixed(4))
+        };
+    };
+
+    /**
      * @param {number} _bodyScrollY
      * @return {string}
      */
-    const getDirection = function(_bodyScrollX, _bodyScrollY) {
+    const getDirection = function(_bodyScrollY) {
         const yDif = _bodyScrollY - bodyScrollY;
 
-        return (yDif > 0) ? DIRECTION_UP : DIRECTION_DW;
+        return (yDif > 0) ? DIRECTION_UP : ((yDif === 0) ? DIRECTION_ST : DIRECTION_DW);
     };
 
     const viewportUpdatedHandler = function(ev) {
@@ -137,50 +195,80 @@ export default (function() {
 
             // ac set direction
             const _bodyScrollY = getBodyScrollY();
-            const _bodyScrollX = getBodyScrollX();
-            const direction = getDirection(_bodyScrollX, _bodyScrollY);
+            const direction = getDirection(_bodyScrollY);
             bodyScrollY = _bodyScrollY;
-            bodyScrollX = _bodyScrollX;
 
             dataInners.forEach( inner => {
                 const innerRect = inner.getBoundingClientRect();
                 emmitData({
+                    tag: inner.getAttribute(QUERY_ATTR),
                     top: innerRect.top,
                     right: innerRect.right,
                     bottom: innerRect.bottom,
                     left: innerRect.left,
-                    status: 'exit', // [exit, top-out, top-in, bottom-in, bottom-out, enter],
-                    direction: direction, // [up, down, left, right]
-                    percentageViewport: getPercentageViewport(browserHeight, innerRect),
-                    percentageCentered: getPercentageCentered(browserHeight/2, innerRect),
+                    width: innerRect.width,
+                    height: innerRect.height,
+                    direction: direction, // [up, down, stop]
+                    viewport: processViewport(innerRect, browserHeight, direction),
+                    centered: processCentered(innerRect, browserHeight),
                 });
             });
         }
     };
 
-    const mounted = function() {
+    /**
+     * @param {NodeList} data
+     * @return {null|throw}
+     */
+    const handlerObjectEmmiter = function(data) {
+    };
+
+    const mounted = function(ev) {
+
+        if (!(ev.target.readyState === 'complete' && isMounted === 'none')) return;
+
+        isMounted = 'progress';
+        document.removeEventListener('readystatechange', mounted);
+
         // ac read all the attributes `innerer`
-        dataInners = document.querySelectorAll('[innerer]');
+        dataInners = document.querySelectorAll(`[${QUERY_ATTR}]`);
 
         if (dataInners.length === 0) {
-            console.warn('[Innerer]: There is no elements to track in current document.');
+            console.warn(`${ERROR_TAG}: There is no elements to track in current document.`);
             return;
         }
 
-        // ac get current scroll X-Y
-        bodyScrollX = getBodyScrollX();
+        handlerObjectEmmiter(dataInners);
+
+        // ac get current scroll Y
         bodyScrollY = getBodyScrollY();
 
         // ac set listeners for scroll and resize
         window.addEventListener('scroll', viewportUpdatedHandler);
         window.addEventListener('resize', viewportUpdatedHandler);
+
+        isMounted = 'complete';
     };
 
     /**
      * @param {function|object} data
      */
-    const create = function(data = null) {
-        emmitData = typeof data === 'function' ? data : Object.create(data);
+    const create = function(data) {
+
+        const _dataPrototype = Object.getPrototypeOf(data);
+        if (
+            false &&
+            ! (
+                typeof _dataPrototype === 'function' ||
+                (
+                    'hasOwnProperty' in _dataPrototype &&
+                    Object.keys( _dataPrototype.valueOf() ).length > 1
+                )
+            )
+        ) throw Error(`${ERROR_TAG}: Data set invalid format, expected function or object, got ${typeof _dataPrototype.valueOf()}`);
+
+        emmitData = typeof data === 'function' ? data : Object.create( data );
+
         DOMReady( mounted );
     };
 
