@@ -2,13 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b7cc7c9e-db03-4a3d-b15e-75616fcd1f22" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/jest.config.js" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/src/utils.js" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/test/utils/isObject.test.js" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/test/utils/issetObject.test.js" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/package.json" afterPath="$PROJECT_DIR$/package.json" />
       <change beforePath="$PROJECT_DIR$/src/index.js" afterPath="$PROJECT_DIR$/src/index.js" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -23,18 +17,8 @@
       <file leaf-file-name="index.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/index.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="380">
-              <caret line="180" column="42" lean-forward="true" selection-start-line="180" selection-start-column="42" selection-end-line="180" selection-end-column="42" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="utils.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/utils.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="435">
-              <caret line="29" column="24" lean-forward="true" selection-start-line="29" selection-start-column="24" selection-end-line="29" selection-end-column="24" />
+            <state relative-caret-position="508">
+              <caret line="97" column="3" lean-forward="false" selection-start-line="97" selection-start-column="3" selection-end-line="97" selection-end-column="3" />
               <folding />
             </state>
           </provider>
@@ -60,6 +44,8 @@
       <find>.create</find>
       <find>docRect</find>
       <find>belowOutTransition</find>
+      <find>BELOW_CENTER</find>
+      <find>ABOVE_CENTER</find>
     </findStrings>
     <replaceStrings>
       <replace />
@@ -81,6 +67,7 @@
         <option value="$PROJECT_DIR$/test/utils/issetObject.test.js" />
         <option value="$PROJECT_DIR$/test/utils/isObject.test.js" />
         <option value="$PROJECT_DIR$/src/utils.js" />
+        <option value="$PROJECT_DIR$/src/const.js" />
         <option value="$PROJECT_DIR$/src/index.js" />
       </list>
     </option>
@@ -146,6 +133,16 @@
             <path>
               <item name="innerer" type="b2602c69:ProjectViewProjectNode" />
               <item name="innerer" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="build" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="innerer" type="b2602c69:ProjectViewProjectNode" />
+              <item name="innerer" type="2a2b976b:PhpTreeStructureProvider$1" />
+              <item name="src" type="2a2b976b:PhpTreeStructureProvider$1" />
+            </path>
+            <path>
+              <item name="innerer" type="b2602c69:ProjectViewProjectNode" />
+              <item name="innerer" type="2a2b976b:PhpTreeStructureProvider$1" />
               <item name="test" type="2a2b976b:PhpTreeStructureProvider$1" />
             </path>
             <path>
@@ -193,12 +190,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1589633669731</updated>
-      <workItem from="1589633671215" duration="56275000" />
+      <workItem from="1589633671215" duration="57015000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="56275000" />
+    <option name="totallyTimeSpent" value="57015000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -268,22 +265,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build/index-babel.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="142">
-          <caret line="190" column="48" lean-forward="true" selection-start-line="190" selection-start-column="48" selection-end-line="190" selection-end-column="48" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/build/index.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="0" column="1734" lean-forward="true" selection-start-line="0" selection-start-column="1734" selection-end-line="0" selection-end-column="1734" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/babel.config.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="75">
@@ -332,18 +313,42 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/build/index-babel.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="207">
+          <caret line="100" column="32" lean-forward="false" selection-start-line="100" selection-start-column="32" selection-end-line="100" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="0" column="3887" lean-forward="false" selection-start-line="0" selection-start-column="3887" selection-end-line="0" selection-end-column="3887" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/utils.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="435">
-          <caret line="29" column="24" lean-forward="true" selection-start-line="29" selection-start-column="24" selection-end-line="29" selection-end-column="24" />
+          <caret line="29" column="24" lean-forward="false" selection-start-line="29" selection-start-column="24" selection-end-line="29" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/const.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/index.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="380">
-          <caret line="180" column="42" lean-forward="true" selection-start-line="180" selection-start-column="42" selection-end-line="180" selection-end-column="42" />
+        <state relative-caret-position="508">
+          <caret line="97" column="3" lean-forward="false" selection-start-line="97" selection-start-column="3" selection-end-line="97" selection-end-column="3" />
           <folding />
         </state>
       </provider>

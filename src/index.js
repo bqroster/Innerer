@@ -51,6 +51,51 @@ const ERROR_TAG = '[Innerer]';
 /**
  * @type {string}
  */
+export const ENTERED = 'entered';
+
+/**
+ * @type {string}
+ */
+export const TOP_OUTER = 'top-outer';
+
+/**
+ * @type {string}
+ */
+export const TOP_LEAVING = 'top-leaving';
+
+/**
+ * @type {string}
+ */
+export const BOTTOM_OUTER = 'bottom-outer';
+
+/**
+ * @type {string}
+ */
+export const TOP_ENTERING = 'top-entering';
+
+/**
+ * @type {string}
+ */
+export const BOTTOM_LEAVING = 'bottom-leaving';
+
+/**
+ * @type {string}
+ */
+export const BOTTOM_ENTERING = 'bottom-entering';
+
+/**
+ * @type {string}
+ */
+export const TOP_OUTER_PROCESS = 'top-outer-process';
+
+/**
+ * @type {string}
+ */
+export const BOTTOM_OUTER_PROCESS = 'bottom-outer-process';
+
+/**
+ * @type {string}
+ */
 export const BELOW_CENTER = 'below_center';
 
 /**
@@ -172,25 +217,25 @@ const getElementStatus = function(
 ) {
     let inStatus;
     if (outerBelowView === 0) {
-        inStatus = 'bottom-outer';
+        inStatus = BOTTOM_OUTER;
     }
     else if (outerAboveView === 0) {
-        inStatus = 'top-outer';
+        inStatus = TOP_OUTER;
     }
     else if (outerBelowView > 0 && outerBelowView < 1) {
-        inStatus = 'bottom-outer-process';
+        inStatus = BOTTOM_OUTER_PROCESS;
     }
     else if (outerAboveView > 0 && outerAboveView < 1) {
-        inStatus = 'top-outer-process';
+        inStatus = TOP_OUTER_PROCESS;
     }
     else if (belowOutTransition > 0 && belowOutTransition < 1) {
-        inStatus = direction === DIRECTION_DW ? 'bottom-leaving' : 'bottom-entering';
+        inStatus = direction === DIRECTION_DW ? BOTTOM_LEAVING : BOTTOM_ENTERING;
     }
     else if (aboveOutTransition > 0 && aboveOutTransition < 1) {
-        inStatus = direction === DIRECTION_DW ? 'top-entering' : 'top-leaving';
+        inStatus = direction === DIRECTION_DW ? TOP_ENTERING : TOP_LEAVING;
     }
     else if (belowOutTransition === 1 && aboveOutTransition === 1) {
-        inStatus = 'entered';
+        inStatus = ENTERED;
     }
 
     return inStatus;
