@@ -1,7 +1,7 @@
 /**
  * @type {string}
  */
-let isMounted = 'none'; // [none|progress|complete]
+let isMounted = 'none'; // [none|progress|completed]
 
 /**
  * @type {number}
@@ -76,6 +76,16 @@ export const TOP_ENTERING = 'top-entering';
 /**
  * @type {string}
  */
+export const BELOW_CENTER = 'below_center';
+
+/**
+ * @type {string}
+ */
+export const ABOVE_CENTER = 'above_center';
+
+/**
+ * @type {string}
+ */
 export const BOTTOM_LEAVING = 'bottom-leaving';
 
 /**
@@ -92,16 +102,6 @@ export const TOP_OUTER_PROCESS = 'top-outer-process';
  * @type {string}
  */
 export const BOTTOM_OUTER_PROCESS = 'bottom-outer-process';
-
-/**
- * @type {string}
- */
-export const BELOW_CENTER = 'below_center';
-
-/**
- * @type {string}
- */
-export const ABOVE_CENTER = 'above_center';
 
 /**
  * check DOM is loaded and execute fn()
@@ -124,13 +124,6 @@ const getBodyScrollY = function() {
         document.documentElement.scrollTop ||
         document.body.scrollTop
     );
-};
-
-/**
- * @return {number}
- */
-const getBrowserWidth = function() {
-    return (window.innerWidth || document.documentElement.clientWidth);
 };
 
 /**
@@ -206,6 +199,7 @@ const processOutside = function(domRect, browserHeight) {
  * @param {number} outerAboveView
  * @param {number} belowOutTransition
  * @param {number} aboveOutTransition
+ * @param {string} direction
  * @return {string}
  */
 const getElementStatus = function(
@@ -245,10 +239,9 @@ const getElementStatus = function(
  * @param {DOMRect} domRect
  * @param {number} browserHeight
  * @param {string} direction
- * @return {number}
+ * @return {object}
  */
 const processViewport = function(domRect, browserHeight, direction) {
-
     const [
         belowOutTransition,
         aboveOutTransition,
@@ -280,7 +273,7 @@ const processViewport = function(domRect, browserHeight, direction) {
 /**
  * @param {DOMRect} domRect
  * @param {number} browserHeight
- * @return {number}
+ * @return {object}
  */
 const processCentered = function(domRect, browserHeight) {
     const yCenter = (browserHeight / 2);
@@ -308,16 +301,25 @@ const getDirection = function(_bodyScrollY) {
     return (yDif > 0) ? DIRECTION_UP : ((yDif === 0) ? DIRECTION_ST : DIRECTION_DW);
 };
 
+/**
+ * @return {string}
+ */
+const handleDirection = function() {
+    // ac set direction
+    const _bodyScrollY = getBodyScrollY();
+    const direction = getDirection(_bodyScrollY);
+    bodyScrollY = _bodyScrollY;
+
+    return direction;
+};
+
 const viewportUpdatedHandler = function(ev) {
     if (typeof emmitData === 'function') {
 
         // get height viewport
         const browserHeight = getBrowserHeight();
-
-        // ac set direction
-        const _bodyScrollY = getBodyScrollY();
-        const direction = getDirection(_bodyScrollY);
-        bodyScrollY = _bodyScrollY;
+        // handle scroll direction
+        const direction = handleDirection();
 
         dataInners.forEach( inner => {
             const innerRect = inner.getBoundingClientRect();
@@ -335,13 +337,6 @@ const viewportUpdatedHandler = function(ev) {
             });
         });
     }
-};
-
-/**
- * @param {NodeList} data
- * @return {null|throw}
- */
-const handlerObjectEmmiter = function(data) {
 };
 
 const mounted = function(ev) {
@@ -362,8 +357,6 @@ const mounted = function(ev) {
         return;
     }
 
-    handlerObjectEmmiter(dataInners);
-
     // ac get current scroll Y
     bodyScrollY = getBodyScrollY();
 
@@ -371,7 +364,7 @@ const mounted = function(ev) {
     window.addEventListener('scroll', viewportUpdatedHandler);
     window.addEventListener('resize', viewportUpdatedHandler);
 
-    isMounted = 'complete';
+    isMounted = 'completed';
 };
 
 /**
