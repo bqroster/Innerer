@@ -86,6 +86,11 @@ export const ABOVE_CENTER = 'above_center';
 /**
  * @type {string}
  */
+export const EMMIT_FN_TEST = '__test_FN__';
+
+/**
+ * @type {string}
+ */
 export const BOTTOM_LEAVING = 'bottom-leaving';
 
 /**
@@ -111,7 +116,12 @@ const DOMReady = function(fn) {
     if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
         fn();
     } else {
-        document.addEventListener('readystatechange', fn);
+        if (document.addEventListener) {
+            document.addEventListener("DOMContentLoaded", fn);
+        }
+        else {
+            window.onload = fn;
+        }
     }
 };
 
@@ -339,12 +349,37 @@ const viewportUpdatedHandler = function(ev) {
     }
 };
 
-const mounted = function(ev) {
+/**
+ * @return {object}
+ */
+const getEmptyEmmitDataObj = function() {
+    return {
+        tag: EMMIT_FN_TEST,
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        width: 0,
+        height: 0,
+        direction: DIRECTION_ST,
+        viewport: {
+            status: BOTTOM_OUTER,
+            percentageInTransition: 0,
+            percentageInPosition: 0,
+            percentageOutside: 1
+        },
+        centered: {
+            status: BELOW_CENTER,
+            percentage: 0
+        },
+    };
+};
 
-    if (!(ev.target.readyState === 'complete' && isMounted === 'none')) return;
+const DOMLoaded = function(ev) {
+
+    if (!((ev.target.readyState === 'complete' || ev.target.readyState !== 'loading') && isMounted === 'none')) return;
 
     isMounted = 'progress';
-    document.removeEventListener('readystatechange', mounted);
 
     const ref = DOMRef ? document.querySelector(DOMRef) : document;
     if (ref === null) throw Error(`${ERROR_TAG}: Reference ${DOMRef} not found on DOM.`);
@@ -368,31 +403,57 @@ const mounted = function(ev) {
 };
 
 /**
- * @param {string} ref
- * @param {function|object} data
+ * @param {any} fn
+ * @return {boolean}
+ */
+export const isFunction = function(fn) {
+    return (
+        (typeof fn === 'function')
+    );
+};
+
+/**
+ * @return {throw} Error
+ */
+const processDataHandler = function(fn) {
+    if (!isFunction(fn))
+        throw Error(`${ERROR_TAG}: Data set invalid format, expected function, got ${typeof fn}`);
+
+    // test emmit
+    try {
+        fn( getEmptyEmmitDataObj() );
+    }catch(err) {
+        throw Error(`${ERROR_TAG}: Invalid function while executed, check you are using a valid function.`);
+    }
+};
+
+/**
+ * @param {string|null} ref
+ * @return {throw} Error
+ */
+const processRefHandler = function(ref = null) {
+    if ((ref !== null && typeof ref !== 'string'))
+        throw Error(`${ERROR_TAG}: Reference set invalid format, expected string, got ${typeof ref}`);
+};
+
+/**
+ * @param {function} data
+ * @param {string|null} ref
  */
 export const createInners = function(data, ref = null) {
 
-    const _dataPrototype = Object.getPrototypeOf(data);
-    if (
-        false &&
-        ! (
-            typeof _dataPrototype === 'function' ||
-            (
-                'hasOwnProperty' in _dataPrototype &&
-                Object.keys( _dataPrototype.valueOf() ).length > 1
-            )
-        )
-    ) throw Error(`${ERROR_TAG}: Data set invalid format, expected function or object, got ${typeof _dataPrototype.valueOf()}`);
+    processDataHandler(data);
+
+    processRefHandler(ref);
 
     DOMRef = ref;
-    emmitData = typeof data === 'function' ? data : Object.create( data );
+    emmitData = data;
 
-    DOMReady( mounted );
+    DOMReady( DOMLoaded );
 };
 
 export const destroyInners = function() {
-    if (dataInners.length === 0) return;
+    if (dataInners === undefined || dataInners === null || dataInners.length === 0) return;
     window.removeEventListener('scroll', viewportUpdatedHandler);
     window.removeEventListener('resize', viewportUpdatedHandler);
 };
