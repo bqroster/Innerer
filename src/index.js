@@ -11,7 +11,7 @@ let bodyScrollY;
 /**
  * @type {NodeList}
  */
-let dataInners;
+let dataInners = null;
 
 /**
  * @type {string}
@@ -26,27 +26,27 @@ let emmitData;
 /**
  * @type {string}
  */
-const DIRECTION_UP = 'up';
-
-/**
- * @type {string}
- */
-const DIRECTION_DW = 'down';
-
-/**
- * @type {string}
- */
-const DIRECTION_ST = 'stop';
-
-/**
- * @type {string}
- */
 const QUERY_ATTR = 'data-innerer';
 
 /**
  * @type {string}
  */
 const ERROR_TAG = '[Innerer]';
+
+/**
+ * @type {string}
+ */
+export const DIRECTION_UP = 'up';
+
+/**
+ * @type {string}
+ */
+export const DIRECTION_DW = 'down';
+
+/**
+ * @type {string}
+ */
+export const DIRECTION_ST = 'stop';
 
 /**
  * @type {string}
@@ -61,17 +61,7 @@ export const TOP_OUTER = 'top-outer';
 /**
  * @type {string}
  */
-export const TOP_LEAVING = 'top-leaving';
-
-/**
- * @type {string}
- */
 export const BOTTOM_OUTER = 'bottom-outer';
-
-/**
- * @type {string}
- */
-export const TOP_ENTERING = 'top-entering';
 
 /**
  * @type {string}
@@ -86,22 +76,7 @@ export const ABOVE_CENTER = 'above_center';
 /**
  * @type {string}
  */
-export const BOTTOM_LEAVING = 'bottom-leaving';
-
-/**
- * @type {string}
- */
-export const BOTTOM_ENTERING = 'bottom-entering';
-
-/**
- * @type {string}
- */
-export const TOP_OUTER_PROCESS = 'top-outer-process';
-
-/**
- * @type {string}
- */
-export const BOTTOM_OUTER_PROCESS = 'bottom-outer-process';
+export const EMMIT_FN_TEST = '__test_FN__';
 
 /**
  * check DOM is loaded and execute fn()
@@ -111,7 +86,12 @@ const DOMReady = function(fn) {
     if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
         fn();
     } else {
-        document.addEventListener('readystatechange', fn);
+        if (document.addEventListener) {
+            document.addEventListener("DOMContentLoaded", fn);
+        }
+        else {
+            window.onload = fn;
+        }
     }
 };
 
@@ -177,7 +157,10 @@ const processElement = function(
  * @return {number[]}
  */
 const processTransition = function(domRect, browserHeight) {
-    return processElement(domRect, browserHeight);
+    return processElement(
+        domRect,
+        browserHeight
+    );
 };
 
 /**
@@ -210,25 +193,16 @@ const getElementStatus = function(
     direction
 ) {
     let inStatus;
-    if (outerBelowView === 0) {
+    if (outerBelowView >= 0 && outerBelowView < 1) {
         inStatus = BOTTOM_OUTER;
     }
-    else if (outerAboveView === 0) {
+    else if (outerAboveView >= 0 && outerAboveView < 1) {
         inStatus = TOP_OUTER;
     }
-    else if (outerBelowView > 0 && outerBelowView < 1) {
-        inStatus = BOTTOM_OUTER_PROCESS;
-    }
-    else if (outerAboveView > 0 && outerAboveView < 1) {
-        inStatus = TOP_OUTER_PROCESS;
-    }
-    else if (belowOutTransition > 0 && belowOutTransition < 1) {
-        inStatus = direction === DIRECTION_DW ? BOTTOM_LEAVING : BOTTOM_ENTERING;
-    }
-    else if (aboveOutTransition > 0 && aboveOutTransition < 1) {
-        inStatus = direction === DIRECTION_DW ? TOP_ENTERING : TOP_LEAVING;
-    }
-    else if (belowOutTransition === 1 && aboveOutTransition === 1) {
+    else if (
+        (belowOutTransition > 0 && belowOutTransition <= 1) ||
+        (aboveOutTransition > 0 && aboveOutTransition <= 1)
+    ) {
         inStatus = ENTERED;
     }
 
@@ -241,14 +215,14 @@ const getElementStatus = function(
  * @param {string} direction
  * @return {object}
  */
-const processViewport = function(domRect, browserHeight, direction) {
+const processElPosition = function(domRect, browserHeight, direction) {
     const [
         belowOutTransition,
         aboveOutTransition,
         inTransition
     ] = processTransition(domRect, browserHeight);
 
-    const inPosition = Math.ceil(inTransition) * (1 - getPercentage(browserHeight - domRect.top, browserHeight));
+    const inPosition = 1 - ((browserHeight - domRect.top) / (browserHeight || 1));
 
     const [
         outerBelowView,
@@ -275,7 +249,7 @@ const processViewport = function(domRect, browserHeight, direction) {
  * @param {number} browserHeight
  * @return {object}
  */
-const processCentered = function(domRect, browserHeight) {
+const processElCentered = function(domRect, browserHeight) {
     const yCenter = (browserHeight / 2);
     const belowCenter = getPercentage(
         browserHeight - (domRect.top + (domRect.height/2)),
@@ -298,7 +272,7 @@ const processCentered = function(domRect, browserHeight) {
 const getDirection = function(_bodyScrollY) {
     const yDif = _bodyScrollY - bodyScrollY;
 
-    return (yDif > 0) ? DIRECTION_UP : ((yDif === 0) ? DIRECTION_ST : DIRECTION_DW);
+    return (yDif > 0) ? DIRECTION_DW : ((yDif === 0) ? DIRECTION_ST : DIRECTION_UP);
 };
 
 /**
@@ -313,38 +287,60 @@ const handleDirection = function() {
     return direction;
 };
 
-const viewportUpdatedHandler = function(ev) {
-    if (typeof emmitData === 'function') {
+const viewportUpdatedHandler = function() {
+    // get height viewport
+    const browserHeight = getBrowserHeight();
+    // handle scroll direction
+    const direction = handleDirection();
 
-        // get height viewport
-        const browserHeight = getBrowserHeight();
-        // handle scroll direction
-        const direction = handleDirection();
-
-        dataInners.forEach( inner => {
-            const innerRect = inner.getBoundingClientRect();
-            emmitData({
-                tag: inner.getAttribute(QUERY_ATTR),
-                top: innerRect.top,
-                right: innerRect.right,
-                bottom: innerRect.bottom,
-                left: innerRect.left,
-                width: innerRect.width,
-                height: innerRect.height,
-                direction: direction, // [up, down, stop]
-                viewport: processViewport(innerRect, browserHeight, direction),
-                centered: processCentered(innerRect, browserHeight),
-            });
+    dataInners.forEach( inner => {
+        const innerRect = inner.getBoundingClientRect();
+        emmitData({
+            tag: inner.getAttribute(QUERY_ATTR),
+            top: innerRect.top,
+            right: innerRect.right,
+            bottom: innerRect.bottom,
+            left: innerRect.left,
+            width: innerRect.width,
+            height: innerRect.height,
+            direction: direction, // [up, down, stop]
+            position: processElPosition(innerRect, browserHeight, direction),
+            centered: processElCentered(innerRect, browserHeight),
         });
-    }
+    });
 };
 
-const mounted = function(ev) {
+/**
+ * @return {object}
+ */
+const getEmptyEmmitDataObj = function() {
+    return {
+        tag: EMMIT_FN_TEST,
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        width: 0,
+        height: 0,
+        direction: DIRECTION_ST,
+        position: {
+            status: BOTTOM_OUTER,
+            percentageInTransition: 0,
+            percentageInPosition: 0,
+            percentageOutside: 1
+        },
+        centered: {
+            status: BELOW_CENTER,
+            percentage: 0
+        },
+    };
+};
 
-    if (!(ev.target.readyState === 'complete' && isMounted === 'none')) return;
+const DOMLoaded = function(ev) {
+
+    if (!((ev.target.readyState === 'complete' || ev.target.readyState !== 'loading') && isMounted === 'none')) return;
 
     isMounted = 'progress';
-    document.removeEventListener('readystatechange', mounted);
 
     const ref = DOMRef ? document.querySelector(DOMRef) : document;
     if (ref === null) throw Error(`${ERROR_TAG}: Reference ${DOMRef} not found on DOM.`);
@@ -368,31 +364,57 @@ const mounted = function(ev) {
 };
 
 /**
- * @param {string} ref
- * @param {function|object} data
+ * @param {any} fn
+ * @return {boolean}
+ */
+export const isFunction = function(fn) {
+    return (
+        (typeof fn === 'function')
+    );
+};
+
+/**
+ * @return {throw} Error
+ */
+const processDataHandler = function(fn) {
+    if (!isFunction(fn))
+        throw Error(`${ERROR_TAG}: Data set invalid format, expected function, got ${typeof fn}`);
+
+    // test emmit
+    try {
+        fn( getEmptyEmmitDataObj() );
+    }catch(err) {
+        throw Error(`${ERROR_TAG}: Invalid function while executed, check you are using a valid function or function content.`);
+    }
+};
+
+/**
+ * @param {string|null} ref
+ * @return {throw} Error
+ */
+const processRefHandler = function(ref = null) {
+    if ((ref !== null && typeof ref !== 'string'))
+        throw Error(`${ERROR_TAG}: Reference set invalid format, expected string, got ${typeof ref}`);
+};
+
+/**
+ * @param {function} data
+ * @param {string|null} ref
  */
 export const createInners = function(data, ref = null) {
 
-    const _dataPrototype = Object.getPrototypeOf(data);
-    if (
-        false &&
-        ! (
-            typeof _dataPrototype === 'function' ||
-            (
-                'hasOwnProperty' in _dataPrototype &&
-                Object.keys( _dataPrototype.valueOf() ).length > 1
-            )
-        )
-    ) throw Error(`${ERROR_TAG}: Data set invalid format, expected function or object, got ${typeof _dataPrototype.valueOf()}`);
+    processDataHandler(data);
+
+    processRefHandler(ref);
 
     DOMRef = ref;
-    emmitData = typeof data === 'function' ? data : Object.create( data );
+    emmitData = data;
 
-    DOMReady( mounted );
+    DOMReady( DOMLoaded );
 };
 
 export const destroyInners = function() {
-    if (dataInners.length === 0) return;
+    if (dataInners === undefined || dataInners === null || dataInners.length === 0) return;
     window.removeEventListener('scroll', viewportUpdatedHandler);
     window.removeEventListener('resize', viewportUpdatedHandler);
 };
