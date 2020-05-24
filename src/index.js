@@ -295,18 +295,24 @@ const viewportUpdatedHandler = function() {
 
     dataInners.forEach( inner => {
         const innerRect = inner.getBoundingClientRect();
-        emmitData({
-            tag: inner.getAttribute(QUERY_ATTR),
-            top: innerRect.top,
-            right: innerRect.right,
-            bottom: innerRect.bottom,
-            left: innerRect.left,
-            width: innerRect.width,
-            height: innerRect.height,
-            direction: direction, // [up, down, stop]
-            position: processElPosition(innerRect, browserHeight, direction),
-            centered: processElCentered(innerRect, browserHeight),
-        });
+        try {
+            emmitData({
+                tag: inner.getAttribute(QUERY_ATTR),
+                top: innerRect.top,
+                right: innerRect.right,
+                bottom: innerRect.bottom,
+                left: innerRect.left,
+                width: innerRect.width,
+                height: innerRect.height,
+                direction: direction, // [up, down, stop]
+                position: processElPosition(innerRect, browserHeight, direction),
+                centered: processElCentered(innerRect, browserHeight),
+            });
+        }
+        catch(err) {
+            destroyInners();
+            throw Error(`${err.message}\n\n${ERROR_TAG}: Invalid function while executed, check you are using a valid function or your function content.`);
+        }
     });
 };
 
@@ -384,7 +390,7 @@ const processDataHandler = function(fn) {
     try {
         fn( getEmptyEmmitDataObj() );
     }catch(err) {
-        throw Error(`${ERROR_TAG}: Invalid function while executed, check you are using a valid function or function content.`);
+        throw Error(`${err.message}\n\n${ERROR_TAG}: Invalid function while executed, check you are using a valid function or your function content.`);
     }
 };
 
