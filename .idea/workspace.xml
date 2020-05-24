@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b7cc7c9e-db03-4a3d-b15e-75616fcd1f22" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/src/index.js" afterPath="$PROJECT_DIR$/src/index.js" />
-      <change beforePath="$PROJECT_DIR$/src/utils.js" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/test/utils/isObject.test.js" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/test/utils/issetObject.test.js" afterPath="" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -20,8 +16,8 @@
       <file leaf-file-name="index.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/index.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="382">
-              <caret line="434" column="50" lean-forward="true" selection-start-line="434" selection-start-column="50" selection-end-line="434" selection-end-column="50" />
+            <state relative-caret-position="321">
+              <caret line="351" column="43" lean-forward="false" selection-start-line="351" selection-start-column="43" selection-end-line="351" selection-end-column="43" />
               <folding />
             </state>
           </provider>
@@ -31,9 +27,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>onscro</find>
-      <find>conso</find>
-      <find>evento</find>
       <find>getDirection</find>
       <find>getBodyScrollX</find>
       <find>getBodyScrollY</find>
@@ -55,6 +48,15 @@
       <find>DOMReady</find>
       <find>dataInners</find>
       <find>EMMIT_FN_TEST</find>
+      <find>getDire</find>
+      <find>console.log('viewportUpdatedHandlerResize');</find>
+      <find>viewportUpdatedHandler</find>
+      <find>viewport</find>
+      <find>processViewport</find>
+      <find>BOTTOM_OUTER</find>
+      <find>Invalid function while executed</find>
+      <find>percentageInPosition</find>
+      <find>console.log</find>
     </findStrings>
     <replaceStrings>
       <replace />
@@ -195,7 +197,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="67393000" />
+    <option name="totallyTimeSpent" value="72106000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -345,8 +347,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/index.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="434" column="50" lean-forward="true" selection-start-line="434" selection-start-column="50" selection-end-line="434" selection-end-column="50" />
+        <state relative-caret-position="321">
+          <caret line="351" column="43" lean-forward="false" selection-start-line="351" selection-start-column="43" selection-end-line="351" selection-end-column="43" />
           <folding />
         </state>
       </provider>

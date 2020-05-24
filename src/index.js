@@ -11,7 +11,7 @@ let bodyScrollY;
 /**
  * @type {NodeList}
  */
-let dataInners;
+let dataInners = null;
 
 /**
  * @type {string}
@@ -26,27 +26,27 @@ let emmitData;
 /**
  * @type {string}
  */
-const DIRECTION_UP = 'up';
-
-/**
- * @type {string}
- */
-const DIRECTION_DW = 'down';
-
-/**
- * @type {string}
- */
-const DIRECTION_ST = 'stop';
-
-/**
- * @type {string}
- */
 const QUERY_ATTR = 'data-innerer';
 
 /**
  * @type {string}
  */
 const ERROR_TAG = '[Innerer]';
+
+/**
+ * @type {string}
+ */
+export const DIRECTION_UP = 'up';
+
+/**
+ * @type {string}
+ */
+export const DIRECTION_DW = 'down';
+
+/**
+ * @type {string}
+ */
+export const DIRECTION_ST = 'stop';
 
 /**
  * @type {string}
@@ -61,17 +61,7 @@ export const TOP_OUTER = 'top-outer';
 /**
  * @type {string}
  */
-export const TOP_LEAVING = 'top-leaving';
-
-/**
- * @type {string}
- */
 export const BOTTOM_OUTER = 'bottom-outer';
-
-/**
- * @type {string}
- */
-export const TOP_ENTERING = 'top-entering';
 
 /**
  * @type {string}
@@ -87,26 +77,6 @@ export const ABOVE_CENTER = 'above_center';
  * @type {string}
  */
 export const EMMIT_FN_TEST = '__test_FN__';
-
-/**
- * @type {string}
- */
-export const BOTTOM_LEAVING = 'bottom-leaving';
-
-/**
- * @type {string}
- */
-export const BOTTOM_ENTERING = 'bottom-entering';
-
-/**
- * @type {string}
- */
-export const TOP_OUTER_PROCESS = 'top-outer-process';
-
-/**
- * @type {string}
- */
-export const BOTTOM_OUTER_PROCESS = 'bottom-outer-process';
 
 /**
  * check DOM is loaded and execute fn()
@@ -187,7 +157,10 @@ const processElement = function(
  * @return {number[]}
  */
 const processTransition = function(domRect, browserHeight) {
-    return processElement(domRect, browserHeight);
+    return processElement(
+        domRect,
+        browserHeight
+    );
 };
 
 /**
@@ -220,25 +193,16 @@ const getElementStatus = function(
     direction
 ) {
     let inStatus;
-    if (outerBelowView === 0) {
+    if (outerBelowView >= 0 && outerBelowView < 1) {
         inStatus = BOTTOM_OUTER;
     }
-    else if (outerAboveView === 0) {
+    else if (outerAboveView >= 0 && outerAboveView < 1) {
         inStatus = TOP_OUTER;
     }
-    else if (outerBelowView > 0 && outerBelowView < 1) {
-        inStatus = BOTTOM_OUTER_PROCESS;
-    }
-    else if (outerAboveView > 0 && outerAboveView < 1) {
-        inStatus = TOP_OUTER_PROCESS;
-    }
-    else if (belowOutTransition > 0 && belowOutTransition < 1) {
-        inStatus = direction === DIRECTION_DW ? BOTTOM_LEAVING : BOTTOM_ENTERING;
-    }
-    else if (aboveOutTransition > 0 && aboveOutTransition < 1) {
-        inStatus = direction === DIRECTION_DW ? TOP_ENTERING : TOP_LEAVING;
-    }
-    else if (belowOutTransition === 1 && aboveOutTransition === 1) {
+    else if (
+        (belowOutTransition > 0 && belowOutTransition <= 1) ||
+        (aboveOutTransition > 0 && aboveOutTransition <= 1)
+    ) {
         inStatus = ENTERED;
     }
 
@@ -251,14 +215,14 @@ const getElementStatus = function(
  * @param {string} direction
  * @return {object}
  */
-const processViewport = function(domRect, browserHeight, direction) {
+const processElPosition = function(domRect, browserHeight, direction) {
     const [
         belowOutTransition,
         aboveOutTransition,
         inTransition
     ] = processTransition(domRect, browserHeight);
 
-    const inPosition = Math.ceil(inTransition) * (1 - getPercentage(browserHeight - domRect.top, browserHeight));
+    const inPosition = 1 - ((browserHeight - domRect.top) / (browserHeight || 1));
 
     const [
         outerBelowView,
@@ -285,7 +249,7 @@ const processViewport = function(domRect, browserHeight, direction) {
  * @param {number} browserHeight
  * @return {object}
  */
-const processCentered = function(domRect, browserHeight) {
+const processElCentered = function(domRect, browserHeight) {
     const yCenter = (browserHeight / 2);
     const belowCenter = getPercentage(
         browserHeight - (domRect.top + (domRect.height/2)),
@@ -308,7 +272,7 @@ const processCentered = function(domRect, browserHeight) {
 const getDirection = function(_bodyScrollY) {
     const yDif = _bodyScrollY - bodyScrollY;
 
-    return (yDif > 0) ? DIRECTION_UP : ((yDif === 0) ? DIRECTION_ST : DIRECTION_DW);
+    return (yDif > 0) ? DIRECTION_DW : ((yDif === 0) ? DIRECTION_ST : DIRECTION_UP);
 };
 
 /**
@@ -323,30 +287,27 @@ const handleDirection = function() {
     return direction;
 };
 
-const viewportUpdatedHandler = function(ev) {
-    if (typeof emmitData === 'function') {
+const viewportUpdatedHandler = function() {
+    // get height viewport
+    const browserHeight = getBrowserHeight();
+    // handle scroll direction
+    const direction = handleDirection();
 
-        // get height viewport
-        const browserHeight = getBrowserHeight();
-        // handle scroll direction
-        const direction = handleDirection();
-
-        dataInners.forEach( inner => {
-            const innerRect = inner.getBoundingClientRect();
-            emmitData({
-                tag: inner.getAttribute(QUERY_ATTR),
-                top: innerRect.top,
-                right: innerRect.right,
-                bottom: innerRect.bottom,
-                left: innerRect.left,
-                width: innerRect.width,
-                height: innerRect.height,
-                direction: direction, // [up, down, stop]
-                viewport: processViewport(innerRect, browserHeight, direction),
-                centered: processCentered(innerRect, browserHeight),
-            });
+    dataInners.forEach( inner => {
+        const innerRect = inner.getBoundingClientRect();
+        emmitData({
+            tag: inner.getAttribute(QUERY_ATTR),
+            top: innerRect.top,
+            right: innerRect.right,
+            bottom: innerRect.bottom,
+            left: innerRect.left,
+            width: innerRect.width,
+            height: innerRect.height,
+            direction: direction, // [up, down, stop]
+            position: processElPosition(innerRect, browserHeight, direction),
+            centered: processElCentered(innerRect, browserHeight),
         });
-    }
+    });
 };
 
 /**
@@ -362,7 +323,7 @@ const getEmptyEmmitDataObj = function() {
         width: 0,
         height: 0,
         direction: DIRECTION_ST,
-        viewport: {
+        position: {
             status: BOTTOM_OUTER,
             percentageInTransition: 0,
             percentageInPosition: 0,
@@ -423,7 +384,7 @@ const processDataHandler = function(fn) {
     try {
         fn( getEmptyEmmitDataObj() );
     }catch(err) {
-        throw Error(`${ERROR_TAG}: Invalid function while executed, check you are using a valid function.`);
+        throw Error(`${ERROR_TAG}: Invalid function while executed, check you are using a valid function or function content.`);
     }
 };
 
