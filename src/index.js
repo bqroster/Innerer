@@ -109,6 +109,8 @@ const getPercentage = function(val, total) {
 /**
  * @param {DOMRect} domRect
  * @param {number} browserHeight
+ * @param {number} offHeight
+ * @param {boolean} inverse
  * @return {number[]}
  */
 const processElement = function(
@@ -165,15 +167,13 @@ const processOutside = function(domRect, browserHeight) {
  * @param {number} outerAboveView
  * @param {number} belowOutTransition
  * @param {number} aboveOutTransition
- * @param {string} direction
  * @return {string}
  */
 const getElementStatus = function(
     outerBelowView,
     outerAboveView,
     belowOutTransition,
-    aboveOutTransition,
-    direction
+    aboveOutTransition
 ) {
     let inStatus;
     if (outerBelowView >= 0 && outerBelowView < 1) {
@@ -342,6 +342,7 @@ export const isFunction = function(fn) {
 };
 
 /**
+ * @param {Function} fn
  * @return {throw} Error
  */
 const processDataHandler = function(fn) {
@@ -365,7 +366,7 @@ const processRefHandler = function(ref = null) {
         throw Error(`${ERROR_TAG}: Reference set invalid format, expected string, got ${typeof ref}`);
 };
 
-const DOMLoaded = function(ev) {
+const DOMLoaded = function() {
 
     if (!((document.readyState === 'complete' || document.readyState !== 'loading'))) return;
 
@@ -401,6 +402,10 @@ const DOMLoaded = function(ev) {
     processDOMQuerySelector();
 };
 
+/**
+ *
+ * @param {HTMLElement} ref
+ */
 const DOMProcess = function(ref) {
     // ac read all the attributes `innerer`
     dataInners = ref.querySelectorAll(`[${QUERY_ATTR}]`);
@@ -454,11 +459,10 @@ export const createInners = function(data, ref = null) {
 };
 
 export const destroyInners = function() {
-    // if (dataInners === undefined || dataInners === null || dataInners.length === 0) return;
-    // resetValues();
-    console.log('reseting values');
-    // window.removeEventListener('scroll', viewportUpdatedHandler);
-    // window.removeEventListener('resize', viewportUpdatedHandler);
+    if (dataInners === undefined || dataInners === null || dataInners.length === 0) return;
+    resetValues();
+    window.removeEventListener('scroll', viewportUpdatedHandler);
+    window.removeEventListener('resize', viewportUpdatedHandler);
 };
 
 export default {

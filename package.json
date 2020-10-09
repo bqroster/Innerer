@@ -2,7 +2,7 @@
   "name": "innerer",
   "version": "0.1.0",
   "private": true,
-  "description": "Check elements within the viewport",
+  "description": "Check element(s) vertical position within the viewport.",
   "author": "Jose Burgos <jose@bqroster.com>",
   "license": "MIT",
   "main": "build/index.js",
@@ -18,17 +18,22 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fburgosq/innerer.git"
+    "url": "git+https://github.com/bqroster/innerer.git"
   },
   "keywords": [
     "viewport",
     "view",
-    "inside viewport"
+    "inside viewport",
+    "position",
+    "vertical position",
+    "dom",
+    "resize",
+    "scroll"
   ],
   "bugs": {
-    "url": "https://github.com/fburgosq/innerer/issues"
+    "url": "https://github.com/bqroster/innerer/issues"
   },
-  "homepage": "https://github.com/fburgosq/innerer#readme",
+  "homepage": "https://github.com/bqroster/innerer#readme",
   "devDependencies": {
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.9.6",
