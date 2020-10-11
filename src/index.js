@@ -281,12 +281,14 @@ const viewportUpdatedHandler = function() {
         try {
             emmitData({
                 tag: inner.getAttribute(QUERY_ATTR),
-                top: innerRect.top,
-                right: innerRect.right,
-                bottom: innerRect.bottom,
-                left: innerRect.left,
-                width: innerRect.width,
-                height: innerRect.height,
+                clientRect: {
+                    top: innerRect.top,
+                    right: innerRect.right,
+                    bottom: innerRect.bottom,
+                    left: innerRect.left,
+                    width: innerRect.width,
+                    height: innerRect.height,
+                },
                 direction: direction, // [up, down, stop]
                 position: processElPosition(innerRect, browserHeight, direction),
                 centered: processElCentered(innerRect, browserHeight),
@@ -311,12 +313,14 @@ const resetValues = function() {
 const getEmptyEmmitDataObj = function() {
     return {
         tag: EMMIT_FN_TEST,
-        top: 9999,
-        right: 0,
-        bottom: 9999,
-        left: 0,
-        width: 0,
-        height: 0,
+        clientRect: {
+            top: 9999,
+            right: 0,
+            bottom: 9999,
+            left: 0,
+            width: 0,
+            height: 0,
+        },
         direction: DIRECTION_ST,
         position: {
             status: BOTTOM_OUTER,
