@@ -1,6 +1,6 @@
 {
   "name": "innerer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Check element vertical position within the viewport.",
   "author": "Jose Burgos <jose@bqroster.com>",
   "license": "MIT",
