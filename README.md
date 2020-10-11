@@ -33,6 +33,11 @@ Innerer.create(callback, "#element-id");
 Innerer.destroy();
 ```
 
+#### In your HTML / Template
+````html
+<div data-innerer="tagName"></div>
+````
+
 #### Parameters
 __callbak__ is invoked when document is scrolling or resizing with one argument as an object with  the information of every `inner-tag`.
 
